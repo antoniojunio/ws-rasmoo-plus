@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
@@ -14,19 +15,22 @@ import java.time.LocalDate;
 @Builder
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "users_id")
     private Long id;
 
     private String name;
 
-    private  String email;
+    @Column(unique = true)
+    private String email;
 
-    private  String phone;
+    @Column(unique = true)
+    private String phone;
 
+    @Column(unique = true)
     private String cpf;
 
     @Column(name = "dt_subscription")
@@ -41,6 +45,6 @@ public class User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscriptions_type_id")
-    private  SubscriptionType subscriptionType;
+    private SubscriptionType subscriptionType;
 
 }
