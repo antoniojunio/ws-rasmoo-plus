@@ -4,9 +4,13 @@ import com.client.ws.rasmooplus.dto.wsraspay.CustomerDto;
 import com.client.ws.rasmooplus.dto.wsraspay.OrderDto;
 import com.client.ws.rasmooplus.dto.wsraspay.PaymentDto;
 import com.client.ws.rasmooplus.integration.WsRaspayIntegration;
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
 
 @Component
 public class WsRaspayIntegrationImpl implements WsRaspayIntegration {
@@ -18,8 +22,16 @@ public class WsRaspayIntegrationImpl implements WsRaspayIntegration {
     }
 
     @Override
-    public CustomerDto createCustomer(CustomerDto customerDto) {
-        return null;
+    public CustomerDto createCustomer(CustomerDto dto) {
+        try {
+            HttpHeaders headers = getHttpHeaders();
+            HttpEntity<CustomerDto> request = new HttpEntity<>(dto, headers);
+            ResponseEntity<CustomerDto> response =
+                    restTemplate.exchange("http://localhost:8081/ws-raspay/v1/customer", HttpMethod.POST, request, CustomerDto.class);
+            return response.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     @Override
@@ -32,4 +44,11 @@ public class WsRaspayIntegrationImpl implements WsRaspayIntegration {
         return null;
     }
 
+    private static HttpHeaders getHttpHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        String credential = "rasmooplus:r@sm00";
+        String base64 = Base64.encodeBase64String(credential.getBytes());
+        headers.add("Authorization", "Basic " + base64);
+        return headers;
+    }
 }
